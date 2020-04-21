@@ -1,11 +1,12 @@
 extern crate chrono;
-use bson::{doc};
+use bson::doc;
+use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use mongodb::{options::ClientOptions, Client};
 use serde::Deserialize;
+use std::env;
 use std::error::Error;
 use std::io;
 use std::process;
-use chrono::{DateTime, NaiveDateTime, NaiveTime, NaiveDate, Utc};
 
 #[derive(Debug, Deserialize)]
 struct Record {
@@ -21,11 +22,10 @@ struct Record {
 }
 
 fn example() -> Result<(), Box<dyn Error>> {
-    let client_options = ClientOptions::parse("mongodb+srv://admin:qUDJuMMCM7opjIQI@cluster0-pap5m.mongodb.net/test?retryWrites=true&w=majority")?;
+    let client_options = ClientOptions::parse(&env::var("MONGO_URL")?)?;
     let client = Client::with_options(client_options)?;
     let db = client.database("death_france");
 
-    // List the names of the collections in that database.
     let collection = db.collection("person");
 
     let mut rdr = csv::Reader::from_reader(io::stdin());
@@ -35,7 +35,6 @@ fn example() -> Result<(), Box<dyn Error>> {
         let ms = NaiveTime::from_hms_milli(12, 34, 56, 789);
         let dt = NaiveDateTime::new(date, ms);
         let doc = doc! { "nom": record.nom, "prenom": record.prenom, "sexe": record.sexe, "datetime": DateTime::from_utc(dt, Utc)};
-
         collection.insert_one(doc, None)?;
     }
     Ok(())

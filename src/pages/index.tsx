@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Line } from "react-chartjs-2";
+import axios from "axios";
+
 const data = {
   labels: ["January", "February", "March", "April", "May", "June", "July"],
   datasets: [
@@ -27,9 +29,12 @@ const data = {
   ],
 };
 
-export default () => (
-  <div>
-    <h2>Line Example</h2>
-    <Line data={data} />
-  </div>
-);
+export default () => {
+  axios.get("/api/test?year=2000-05-12").then((res) => console.log(res.data));
+  return (
+    <div>
+      <h2>Line Example</h2>
+      <Line data={data} />
+    </div>
+  );
+};
